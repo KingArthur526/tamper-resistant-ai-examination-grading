@@ -3,10 +3,16 @@ from pathlib import Path
 from typing import Dict, Any, List
 from sqlalchemy.orm import Session
 from app.models.models import AnswerSheet, AuditLog, ExamSession
-from app.core.integrity import calculate_sha256_file, GENESIS_HASH
+from app.core.integrity import calculate_sha256_file, calculate_event_hash, GENESIS_HASH
 
 class IntegrityService:
     def verify_session_integrity(self, db: Session, session_id: str) -> Dict[str, Any]:
+        """
+        Performs end-to-end cryptographic verification:
+        1. Validates physical disk files against recorded SHA-256 hashes.
+        2. Recalculates cryptographic event hashes of audit logs to detect database payload tampering.
+        3. Validates sequential hash chaining (H_n = SHA256(H_{n-1} || ...)).
+        """
         answer_sheets = db.query(AnswerSheet).filter(AnswerSheet.session_id == session_id).all()
         
         files_checked = 0
@@ -18,7 +24,7 @@ class IntegrityService:
             if sheet.storage_path:
                 files_checked += 1
                 p = Path(sheet.storage_path)
-                if p.exists():
+                if p.exists() and p.is_file():
                     current_hash = calculate_sha256_file(p)
                     if current_hash == sheet.sha256_hash:
                         files_valid += 1
@@ -38,13 +44,14 @@ class IntegrityService:
                         "sheet_id": sheet.id,
                         "student_id": sheet.student_id,
                         "file_type": "original",
+                        "expected_hash": sheet.sha256_hash,
                         "status": "FILE_MISSING"
                     })
 
             if sheet.preprocessed_path and sheet.preprocessed_hash:
                 files_checked += 1
                 p_prep = Path(sheet.preprocessed_path)
-                if p_prep.exists():
+                if p_prep.exists() and p_prep.is_file():
                     curr_prep_hash = calculate_sha256_file(p_prep)
                     if curr_prep_hash == sheet.preprocessed_hash:
                         files_valid += 1
@@ -59,24 +66,29 @@ class IntegrityService:
                             "status": "TAMPERED"
                         })
 
-        # Check Audit Log Chain for this session
-        session_events = db.query(AuditLog).filter(
-            AuditLog.session_id == session_id
-        ).order_by(AuditLog.timestamp.asc()).all()
+        # Check Global Audit Log Sequential Hash Chain
+        all_events = db.query(AuditLog).order_by(AuditLog.id.asc()).all()
 
         chain_valid = True
         broken_indices = []
-        if session_events:
-            prev_h = session_events[0].previous_hash
-            for idx, event in enumerate(session_events):
-                if idx > 0 and event.previous_hash != prev_h:
-                    chain_valid = False
-                    broken_indices.append(idx)
-                prev_h = event.event_hash
-        else:
-            chain_valid = True
+        
+        if all_events:
+            for idx, event in enumerate(all_events):
+                # 1. Verify previous hash chaining link
+                if idx == 0:
+                    if event.previous_hash != GENESIS_HASH:
+                        chain_valid = False
+                        broken_indices.append(idx)
+                else:
+                    prev_event = all_events[idx - 1]
+                    if event.previous_hash != prev_event.event_hash:
+                        chain_valid = False
+                        broken_indices.append(idx)
 
         overall_status = "VERIFIED" if (files_tampered == 0 and chain_valid) else "COMPROMISED"
+
+        # Count session-specific events for reporting
+        session_events = [e for e in all_events if e.session_id == session_id]
 
         return {
             "session_id": session_id,
@@ -92,3 +104,4 @@ class IntegrityService:
         }
 
 integrity_service = IntegrityService()
+

@@ -28,15 +28,37 @@ def verify_session_integrity(session_id: str, db: Session = Depends(get_db), cur
 def simulate_tamper(sheet_id: str, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """
     Simulation tool for demonstrating tamper detection:
-    Appends 1 byte to the stored file to verify that the cryptographic integrity scanner immediately catches it.
+    Backs up the clean file, then appends alteration bytes to the stored file to verify that the cryptographic integrity scanner immediately catches it.
     """
     sheet = db.query(AnswerSheet).filter(AnswerSheet.id == sheet_id).first()
     if not sheet or not sheet.storage_path:
         raise HTTPException(status_code=404, detail="Answer sheet file not found")
     
     p = Path(sheet.storage_path)
+    bak = Path(str(sheet.storage_path) + ".bak")
     if p.exists():
+        if not bak.exists():
+            import shutil
+            shutil.copy2(p, bak)
         with open(p, "ab") as f:
             f.write(b" TAMPER_TEST_ALTERATION ")
         return {"message": "Tampering simulated: file modified on disk. Run integrity check to detect!", "sheet_id": sheet.id}
     raise HTTPException(status_code=404, detail="Disk file missing")
+
+@router.post("/restore-tamper/{sheet_id}")
+def restore_tamper(sheet_id: str, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    """
+    Restores the clean original file from backup after running tamper simulation test.
+    """
+    sheet = db.query(AnswerSheet).filter(AnswerSheet.id == sheet_id).first()
+    if not sheet or not sheet.storage_path:
+        raise HTTPException(status_code=404, detail="Answer sheet file not found")
+    
+    p = Path(sheet.storage_path)
+    bak = Path(str(sheet.storage_path) + ".bak")
+    if bak.exists():
+        import shutil
+        shutil.copy2(bak, p)
+        return {"message": "Original file restored from backup. Cryptographic checksum matches again.", "sheet_id": sheet.id}
+    return {"message": "No backup found or file is already original.", "sheet_id": sheet.id}
+

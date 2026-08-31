@@ -78,6 +78,23 @@ export const AuditIntegrity: React.FC = () => {
     }
   };
 
+  const handleRestoreTamper = async () => {
+    if (!examId) return;
+    setIsTampering(true);
+    try {
+      const sheets = await api.getExamAnswerSheets(examId);
+      if (sheets.length > 0) {
+        await api.restoreTamper(sheets[0].id);
+        alert("Pristine file restored from backup. Running integrity check...");
+        await handleRunVerification();
+      }
+    } catch (e: any) {
+      alert("Restore error: " + e.message);
+    } finally {
+      setIsTampering(false);
+    }
+  };
+
   const isVerified = verification?.overall_status === "VERIFIED";
 
   return (
@@ -96,6 +113,17 @@ export const AuditIntegrity: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-2.5">
+          {!isVerified && (
+            <button
+              onClick={handleRestoreTamper}
+              disabled={isTampering || !examId}
+              className="px-3.5 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-colors disabled:opacity-50"
+            >
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Restore Clean File</span>
+            </button>
+          )}
+
           <button
             onClick={handleSimulateTamper}
             disabled={isTampering || !examId}

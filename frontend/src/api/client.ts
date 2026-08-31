@@ -182,6 +182,11 @@ export const api = {
     if (!res.ok) throw new Error(await res.text());
     return res.json();
   },
+  restoreTamper: async (sheetId: string) => {
+    const res = await fetch(`${API_BASE}/audit/restore-tamper/${sheetId}`, { method: 'POST' });
+    if (!res.ok) throw new Error(await res.text());
+    return res.json();
+  },
 
   // Settings
   getConfig: async (sessionId: string) => {
