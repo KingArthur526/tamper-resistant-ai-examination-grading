@@ -14,12 +14,16 @@ def log_audit_event(
     payload: Optional[Dict[str, Any]] = None
 ) -> AuditLog:
     """
-    Creates an immutable audit event chained to the previous event hash.
+    Creates an immutable audit event chained to the previous event hash for this session ledger.
     """
     now = datetime.now(timezone.utc)
     ts_str = now.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
 
-    last_event = db.query(AuditLog).order_by(AuditLog.id.desc()).first()
+    query = db.query(AuditLog)
+    if session_id:
+        query = query.filter(AuditLog.session_id == session_id)
+    
+    last_event = query.order_by(AuditLog.timestamp.desc()).first()
     prev_hash = last_event.event_hash if last_event else GENESIS_HASH
 
     event_hash = calculate_event_hash(

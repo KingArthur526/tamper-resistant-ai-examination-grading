@@ -66,29 +66,27 @@ class IntegrityService:
                             "status": "TAMPERED"
                         })
 
-        # Check Global Audit Log Sequential Hash Chain
-        all_events = db.query(AuditLog).order_by(AuditLog.id.asc()).all()
+        # Check Audit Log Sequential Hash Chain for this session
+        session_events = db.query(AuditLog).filter(
+            AuditLog.session_id == session_id
+        ).order_by(AuditLog.timestamp.asc()).all()
 
         chain_valid = True
         broken_indices = []
         
-        if all_events:
-            for idx, event in enumerate(all_events):
-                # 1. Verify previous hash chaining link
+        if session_events:
+            for idx, event in enumerate(session_events):
                 if idx == 0:
                     if event.previous_hash != GENESIS_HASH:
                         chain_valid = False
                         broken_indices.append(idx)
                 else:
-                    prev_event = all_events[idx - 1]
+                    prev_event = session_events[idx - 1]
                     if event.previous_hash != prev_event.event_hash:
                         chain_valid = False
                         broken_indices.append(idx)
 
         overall_status = "VERIFIED" if (files_tampered == 0 and chain_valid) else "COMPROMISED"
-
-        # Count session-specific events for reporting
-        session_events = [e for e in all_events if e.session_id == session_id]
 
         return {
             "session_id": session_id,

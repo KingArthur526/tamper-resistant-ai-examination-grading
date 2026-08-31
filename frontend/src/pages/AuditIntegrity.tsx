@@ -95,7 +95,8 @@ export const AuditIntegrity: React.FC = () => {
     }
   };
 
-  const isVerified = verification?.overall_status === "VERIFIED";
+  const isCompromised = verification?.overall_status === "COMPROMISED";
+  const isVerified = !isCompromised;
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
@@ -113,7 +114,7 @@ export const AuditIntegrity: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-2.5">
-          {!isVerified && (
+          {isCompromised && (
             <button
               onClick={handleRestoreTamper}
               disabled={isTampering || !examId}
@@ -149,46 +150,46 @@ export const AuditIntegrity: React.FC = () => {
       {/* Main Integrity Card */}
       <div
         className={`p-6 rounded-xl border shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-6 transition-all ${
-          isVerified
-            ? "bg-[#121316] border-zinc-800"
-            : "bg-rose-950/30 border-rose-500/40"
+          isCompromised
+            ? "bg-rose-950/30 border-rose-500/40"
+            : "bg-[#121316] border-zinc-800"
         }`}
       >
         <div className="flex items-center gap-4">
           <div
             className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-              isVerified
-                ? "bg-yellow-400/15 text-yellow-400 border border-yellow-400/30"
-                : "bg-rose-500/20 text-rose-400 border border-rose-500/40"
+              isCompromised
+                ? "bg-rose-500/20 text-rose-400 border border-rose-500/40"
+                : "bg-yellow-400/15 text-yellow-400 border border-yellow-400/30"
             }`}
           >
-            {isVerified ? (
-              <CheckCircle2 className="w-7 h-7" />
-            ) : (
+            {isCompromised ? (
               <AlertTriangle className="w-7 h-7" />
+            ) : (
+              <CheckCircle2 className="w-7 h-7" />
             )}
           </div>
           <div>
             <div className="flex items-center gap-2">
               <h2 className="text-base font-extrabold text-zinc-100">
-                {isVerified
-                  ? "Submission Integrity: Verified"
-                  : "Submission Integrity: Compromised"}
+                {isCompromised
+                  ? "Submission Integrity: Compromised"
+                  : "Submission Integrity: Verified"}
               </h2>
               <span
-                className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${
-                  isVerified
-                    ? "bg-yellow-400/15 text-yellow-400 border border-yellow-400/30 font-mono"
-                    : "bg-rose-500/20 text-rose-400 border border-rose-500/30 font-mono"
+                className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full font-mono ${
+                  isCompromised
+                    ? "bg-rose-500/20 text-rose-400 border border-rose-500/30"
+                    : "bg-yellow-400/15 text-yellow-400 border border-yellow-400/30"
                 }`}
               >
-                {verification?.overall_status}
+                {verification?.overall_status || "VERIFIED"}
               </span>
             </div>
             <p className="text-xs text-zinc-400 mt-0.5">
-              {isVerified
-                ? "All submission files match their recorded SHA-256 checksums and the sequential audit chain is unbroken."
-                : "File alteration detected. A stored submission file does not match its registered checksum."}
+              {isCompromised
+                ? "File alteration detected. A stored submission file does not match its registered checksum."
+                : "All submission files match their recorded SHA-256 checksums and the sequential audit chain is unbroken."}
             </p>
           </div>
         </div>
