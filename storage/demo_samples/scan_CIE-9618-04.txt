@@ -1,0 +1,8 @@
+NAME: Emma Watson | ID: CIE-9618-04 | ROLL: CAM2026-004
+=================================================================
+
+Question 1:
+The fetch execute cycle is how the computer works. The PC sends data to the MDR. The CPU decodes the data and executes it quickly.
+
+Question 2:
+Virtual memory is a type of RAM that makes the computer faster by increasing processor clock speed.

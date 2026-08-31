@@ -1,0 +1,11 @@
+NAME: Evan Wright | ID: STU-105 | ROLL: CS2026-005
+=================================================================
+
+Question 1:
+OSI Reference Model: 7 layers. Physical handles raw bits. Data link handles MAC framing. Network layer uses IP routing. Transport handles end to end delivery with acknowledgments.
+
+Question 2:
+TCP handshake: Step 1 SYN, Step 2 SYN-ACK, Step 3 ACK. Reliability with sequence numbers and retransmissions.
+
+Question 3B:
+Link state routing broadcasts LSAs to all nodes. Each node runs Dijkstra shortest path algorithm to build the routing tree.

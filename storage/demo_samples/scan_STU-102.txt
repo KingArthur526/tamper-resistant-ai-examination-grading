@@ -1,0 +1,11 @@
+NAME: Bob Johnson | ID: STU-102 | ROLL: CS2026-002
+=================================================================
+
+Question 1:
+OSI is divided into seven distinct conceptual layers from physical up to application. Physical layer sends electrical pulses representing digital bits over copper wires or wireless media. Data link handles frame encapsulation, switch MAC tables, and checksum validation. Network layer handles logical routing using IP addresses to find paths across autonomous systems. Transport provides process-to-process port delivery and flow control. Upper layers handle data compression, encryption and application user interfaces.
+
+Question 2:
+Connection starts with client transmitting SYN with initial sequence number. Server replies with SYN+ACK acknowledging client and providing its number. Final ACK completes handshake and connection is ready. Reliability is achieved through retransmission timers, sequence numbers, and packet acknowledgments.
+
+Question 3A:
+Distance vector utilizes Bellman-Ford calculation with periodic neighbor table broadcasts. Count-to-infinity happens when broken links cause circulating updates incrementing hops. Split horizon and poison reverse prevent loops by avoiding sending learned routes back.

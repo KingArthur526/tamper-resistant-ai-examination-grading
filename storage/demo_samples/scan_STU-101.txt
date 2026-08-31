@@ -1,0 +1,11 @@
+NAME: Alice Smith | ID: STU-101 | ROLL: CS2026-001
+=================================================================
+
+Question 1:
+The OSI Reference Model is an open 7-layer theoretical network architecture. The Physical layer transmits raw electrical bits and optical signals across physical cables and hardware interfaces. The Data Link layer handles framing, MAC hardware addressing, and local error detection across the local hop. The Network layer performs logical IP addressing and routing packets across intermediate networks to determine optimal paths. The Transport layer provides reliable end-to-end communication between processes with segmentation, flow control, and acknowledgments. The Session layer maintains session dialogues, Presentation handles syntax translation and encryption, and Application exposes user protocols.
+
+Question 2:
+TCP establishes a connection using the 3-Way Handshake: First, the client sends a SYN segment with an Initial Sequence Number (ISN). Second, the server responds with a SYN-ACK segment, acknowledging the client sequence and sending its own server sequence. Third, the client returns an ACK segment, moving the connection into the ESTABLISHED state. TCP guarantees reliability using sequence numbering, cumulative acknowledgments, checksum verification, and retransmissions upon timeout.
+
+Question 3A:
+Distance Vector routing is based on the Bellman-Ford algorithm where each router periodically exchanges its complete vector table with direct neighbors. When a link fails, the Count-to-Infinity problem occurs where routing loops cause hop counts to increase gradually toward infinity. This is resolved using Split Horizon where routes are not advertised back, Poison Reverse setting failed metric to infinity, and hold-down timers.

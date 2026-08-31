@@ -1,0 +1,8 @@
+NAME: Liam Chen | ID: CIE-9618-02 | ROLL: CAM2026-002
+=================================================================
+
+Question 1:
+The processor executes instructions sequentially: PC points to memory address, passes it to MAR. Data is retrieved into MDR, and PC increases by 1. The instruction moves to CIR where the CU breaks it down into command opcode and data operands. The ALU calculates arithmetic results. Processor checks for pending interrupts.
+
+Question 2:
+Virtual memory uses hard drive space as supplementary RAM when physical memory is exhausted. Paging divides data into equal sized pages mapped to memory frames using the page mapping table. A page fault occurs when a page is missing from RAM. Excessive swapping leads to thrashing where disk I/O bottlenecks the whole computer. Adding RAM fixes this.

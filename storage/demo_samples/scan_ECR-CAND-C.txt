@@ -1,0 +1,5 @@
+NAME: Candidate C (Low Performance - Grade E/U) | ID: ECR-CAND-C | ROLL: ECR2026-C
+=================================================================
+
+Question 1:
+BitTorrent is used to download large files from the internet. The tracker is a central server that stores the files and sends them to the client. When the file finishes downloading it is saved on the computer hard drive.

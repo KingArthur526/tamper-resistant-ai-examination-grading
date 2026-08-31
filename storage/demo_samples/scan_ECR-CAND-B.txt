@@ -1,0 +1,5 @@
+NAME: Candidate B (Middle Performance - Grade C) | ID: ECR-CAND-B | ROLL: ECR2026-B
+=================================================================
+
+Question 1:
+A torrent file is downloaded and opened in a torrent client. The tracker server gives the IP addresses of other computers in the swarm so they can connect. The file is split into pieces so people download parts from each other. Once finished downloading the whole file you can seed the file to others.

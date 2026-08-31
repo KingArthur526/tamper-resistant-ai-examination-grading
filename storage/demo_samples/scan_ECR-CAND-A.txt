@@ -1,0 +1,5 @@
+NAME: Candidate A (High Performance - Grade A) | ID: ECR-CAND-A | ROLL: ECR2026-A
+=================================================================
+
+Question 1:
+The user opens a .torrent descriptor file in a BitTorrent client application. The client contacts a central tracker server which maintains the list of connected peers and coordinates the swarm by sharing IP addresses. The file is split into small chunks or pieces. Peers simultaneously download missing chunks from multiple other peers while uploading chunks they already have. When a peer completes downloading the full file, it becomes a seed and continues sharing pieces with the swarm.

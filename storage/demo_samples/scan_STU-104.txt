@@ -1,0 +1,11 @@
+NAME: Diana Prince | ID: STU-104 | ROLL: CS2026-004
+=================================================================
+
+Question 1:
+The network model connects computers. The physical layer handles wires. The transport layer provides routing with IP addresses. Application layer runs software.
+
+Question 2:
+TCP connects clients and servers by sending packets back and forth. It uses handshakes and acknowledgments.
+
+Question 3A:
+Routing algorithms find the shortest path between routers.

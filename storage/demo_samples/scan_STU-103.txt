@@ -1,0 +1,11 @@
+NAME: Charlie Brown | ID: STU-103 | ROLL: CS2026-003
+=================================================================
+
+Question 1:
+OSI model has 7 layers. Physical layer is for cables and hardware. Data link layer uses MAC addresses. Network layer uses IP addresses and routers. Transport layer sends data between computers.
+
+Question 2:
+TCP 3-way handshake sends SYN from client to server, then server sends SYN-ACK back, then client sends ACK. TCP is reliable because it sends acknowledgments.
+
+Question 3A:
+Distance vector uses Bellman-Ford and routers talk to neighbors. Count to infinity is a routing loop issue.

@@ -1,0 +1,11 @@
+NAME: Fiona Gallagher | ID: STU-106 | ROLL: CS2026-006
+=================================================================
+
+Question 1:
+OSI 7 layers: Physical transmits raw bits and voltage. Data link frames data and detects errors with MAC. Network layer routes packets via IP. Transport layer ensures end-to-end reliable transmission.
+
+Question 2:
+TCP 3-way handshake: Client transmits SYN, Server replies with SYN-ACK, Client sends ACK. Reliable transfer via cumulative ACKs and retransmissions.
+
+Question 3B:
+Link State algorithm floods LSAs across the entire topology to create a database. Then Dijkstra's algorithm computes the shortest path tree to all destinations.

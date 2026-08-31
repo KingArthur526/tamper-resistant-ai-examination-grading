@@ -1,0 +1,43 @@
+﻿# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.coverage
+htmlcov/
+*.log
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+
+# Node / Frontend
+frontend/node_modules/
+frontend/.pnp
+frontend/.pnp.js
+frontend/coverage/
+frontend/dist/
+frontend/.vite/
+
+# Database & Storage
+*.db
+*.db-shm
+*.db-wal
+storage/original/*
+!storage/original/.gitkeep
+storage/preprocessed/*
+!storage/preprocessed/.gitkeep
+storage/ocr/*
+!storage/ocr/.gitkeep
+storage/reports/*
+!storage/reports/.gitkeep
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

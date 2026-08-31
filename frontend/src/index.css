@@ -1,0 +1,54 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    @apply bg-[#090A0B] text-zinc-100 antialiased selection:bg-yellow-400 selection:text-zinc-950;
+  }
+
+  code, pre, .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-feature-settings: 'tnum', 'zero';
+  }
+}
+
+/* Black & Yellow Design System Surfaces */
+.surface-card {
+  @apply bg-[#121316] border border-zinc-800/90 shadow-lg shadow-black/40 rounded-xl;
+}
+
+.surface-card-hover {
+  @apply transition-all duration-150 ease-in-out;
+}
+.surface-card-hover:hover {
+  @apply border-yellow-400/40 shadow-xl shadow-yellow-500/5 translate-y-[-1px];
+}
+
+/* Custom Black & Yellow scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #090A0B;
+}
+::-webkit-scrollbar-thumb {
+  background: #27272A;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #EAB308;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(3px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.15s ease-out forwards;
+}

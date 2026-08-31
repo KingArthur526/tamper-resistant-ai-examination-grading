@@ -1,0 +1,8 @@
+NAME: Maya Lin | ID: CIE-9618-01 | ROLL: CAM2026-001
+=================================================================
+
+Question 1:
+During the Fetch stage, the Program Counter (PC) stores the address of the next instruction, which is copied to the Memory Address Register (MAR). The instruction stored at that location in RAM is loaded into the Memory Data Register (MDR) via the data bus, and the PC is incremented. Next, in the Decode stage, the instruction is transferred from the MDR to the Current Instruction Register (CIR). The Control Unit (CU) decodes the instruction by separating the opcode from the operand. In the Execute stage, the instruction is carried out using the ALU and data registers. Finally, the CPU checks for interrupt signals before fetching the subsequent instruction.
+
+Question 2:
+Virtual Memory is a memory management technique that enables programs requiring more memory than available physical RAM to run by allocating swap space on secondary storage. In paging, memory is segmented into fixed-size pages in virtual memory and page frames in physical RAM. The OS maintains a page table to translate logical virtual addresses to physical RAM addresses. When an unmapped page is accessed, a page fault is triggered to load it from disk. If RAM is overloaded, disk thrashing occurs where the OS spends all its time swapping pages rather than executing tasks. This can be resolved by adding more RAM or lowering concurrency.

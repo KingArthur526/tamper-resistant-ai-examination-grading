@@ -1,0 +1,8 @@
+NAME: Noah Patel | ID: CIE-9618-03 | ROLL: CAM2026-003
+=================================================================
+
+Question 1:
+In the fetch cycle, PC holds the instruction address and sends it to the MAR. The instruction is fetched into MDR. Then in decode, the instruction goes to CIR and the Control Unit decodes what operation to do. Then the CPU executes the instruction.
+
+Question 2:
+Virtual memory is used when RAM is full by storing extra pages on the hard drive. The OS divides memory into pages and uses a page table to look up addresses. If too many programs run at once the computer slows down due to thrashing.
