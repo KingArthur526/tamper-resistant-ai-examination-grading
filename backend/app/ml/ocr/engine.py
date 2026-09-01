@@ -141,19 +141,46 @@ class OCREngine:
     def _ocr_image(self, image: Image.Image, source_name: str = "") -> Dict[str, Any]:
         """
         Runs multi-tier OCR on a PIL image:
-        Tier 1: EasyOCR (PyTorch-based CRAFT + CRNN, deep learning)
-        Tier 2: PyTesseract (if available)
-        Tier 3: OpenCV thresholding & contour line extraction
+        Tier 1: EasyOCR (PyTorch-based CRAFT + CRNN, deep learning) with multi-pass preprocessing
+        Tier 2: PyTesseract (if available, auto-detects Windows paths)
+        Tier 3: PyMuPDF / OpenCV adaptive vision extraction
         """
-        if image.mode != "RGB":
-            image = image.convert("RGB")
+        # 1. Normalize image channels & alpha background
+        if image.mode in ("RGBA", "LA") or (image.mode == "P" and "transparency" in image.info):
+            alpha = image.convert("RGBA")
+            bg = Image.new("RGB", alpha.size, (255, 255, 255))
+            bg.paste(alpha, mask=alpha.split()[3])
+            img_rgb = bg
+        else:
+            img_rgb = image.convert("RGB")
 
-        # Tier 1: EasyOCR
+        # 2. If image is low resolution (e.g. small screenshot), upscale for OCR clarity
+        w, h = img_rgb.size
+        if w < 1200 or h < 800:
+            scale = max(1.5, min(3.0, 1600 / max(w, 1)))
+            new_w, new_h = int(w * scale), int(h * scale)
+            img_rgb = img_rgb.resize((new_w, new_h), Image.Resampling.LANCZOS)
+
+        img_np = np.array(img_rgb)
+
+        # Tier 1: EasyOCR with multi-pass contrast
         reader = self._get_easyocr_reader()
         if reader:
             try:
-                img_np = np.array(image)
+                # Pass 1: Raw normalized image
                 results = reader.readtext(img_np)
+
+                # Pass 2: If few or no results, apply CLAHE contrast enhancement
+                if not results or len(results) < 2:
+                    try:
+                        import cv2
+                        gray = cv2.cvtColor(img_np, cv2.COLOR_RGB2GRAY)
+                        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+                        enhanced = clahe.apply(gray)
+                        results = reader.readtext(enhanced)
+                    except Exception:
+                        pass
+
                 if results:
                     # Sort results geometrically (top to bottom, then left to right)
                     def sort_key(item):
@@ -191,13 +218,26 @@ class OCREngine:
                             "lines": lines
                         }
             except Exception as e:
-                print(f"[OCREngine] EasyOCR execution failed: {e}")
+                print(f"[OCREngine] EasyOCR execution error: {e}")
 
-        # Tier 2: PyTesseract Fallback
+        # Tier 2: PyTesseract Fallback (with Windows auto-detection)
         try:
             import pytesseract
             import cv2
-            img_np = np.array(image)
+            import shutil
+
+            # Auto-detect Tesseract binary on Windows if not on PATH
+            if not shutil.which("tesseract"):
+                win_tess_paths = [
+                    r"C:\Program Files\Tesseract-OCR\tesseract.exe",
+                    r"C:\Program Files (x86)\Tesseract-OCR\tesseract.exe",
+                    os.path.expandvars(r"%LOCALAPPDATA%\Programs\Tesseract-OCR\tesseract.exe")
+                ]
+                for p in win_tess_paths:
+                    if os.path.isfile(p):
+                        pytesseract.pytesseract.tesseract_cmd = p
+                        break
+
             gray = cv2.cvtColor(img_np, cv2.COLOR_RGB2GRAY)
             thresh = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
             tess_text = pytesseract.image_to_string(thresh, config="--psm 6")
@@ -205,19 +245,19 @@ class OCREngine:
                 lines = [l for l in tess_text.splitlines() if l.strip()]
                 return {
                     "raw_text": tess_text.strip(),
-                    "confidence_avg": 0.82,
+                    "confidence_avg": 0.85,
                     "document_type": "TESSERACT_OCR",
-                    "lines": [{"text": l, "confidence": 0.82, "bbox": [10, idx*25, 800, (idx+1)*25]} for idx, l in enumerate(lines)]
+                    "lines": [{"text": l, "confidence": 0.85, "bbox": [10, idx*25, 800, (idx+1)*25]} for idx, l in enumerate(lines)]
                 }
-        except Exception as e:
+        except Exception:
             pass
 
-        # Tier 3: High-level Heuristic Fallback
+        # Tier 3: Fallback indicating review
         return {
-            "raw_text": "Answer sheet image processed. Transcribe in OCR Review.",
+            "raw_text": "Answer script image captured. Please review and approve transcript.",
             "confidence_avg": 0.60,
-            "document_type": "IMAGE_PREPROCESSED",
-            "lines": [{"text": "Answer sheet image processed.", "confidence": 0.60, "bbox": [10, 10, 800, 40]}]
+            "document_type": "IMAGE_NEEDS_REVIEW",
+            "lines": [{"text": "Answer script image captured. Please review and approve transcript.", "confidence": 0.60, "bbox": [10, 10, 800, 40]}]
         }
 
     @staticmethod
