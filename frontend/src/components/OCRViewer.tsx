@@ -276,7 +276,9 @@ export const OCRViewer: React.FC<OCRViewerProps> = ({
                 title="Re-run deep-learning EasyOCR & PyMuPDF on the uploaded scan"
                 className="px-2.5 py-1 bg-zinc-800 hover:bg-zinc-700 text-yellow-400 border border-zinc-700 hover:border-yellow-400/40 text-xs font-semibold rounded-md transition-all flex items-center gap-1.5 shadow-xs disabled:opacity-50"
               >
-                <RefreshCw className={`w-3 h-3 text-yellow-400 ${isRerunning ? "animate-spin" : ""}`} />
+                <RefreshCw
+                  className={`w-3 h-3 text-yellow-400 ${isRerunning ? "animate-spin" : ""}`}
+                />
                 <span>{isRerunning ? "Recognizing..." : "Re-run AI OCR"}</span>
               </button>
             )}
