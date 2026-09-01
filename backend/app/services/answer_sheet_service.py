@@ -64,6 +64,14 @@ class AnswerSheetService:
                 "size_bytes": file_size
             }
         )
+
+        # Automatically run OCR and semantic evaluation on the uploaded script
+        try:
+            from app.services.ocr_service import ocr_service
+            sheet = ocr_service.process_answer_sheet_ocr(db, sheet.id, user_id=user_id)
+        except Exception as ocr_err:
+            print(f"[AnswerSheetService] Auto-OCR on upload note: {ocr_err}")
+
         return sheet
 
 answer_sheet_service = AnswerSheetService()

@@ -87,10 +87,17 @@ class OCRService:
                 )
                 db.add(s_answer)
 
-            # For digital documents (confidence >= 0.95), auto-complete without review needed
+            # For digital documents (confidence >= 0.75), mark as completed
             sheet.processing_status = "OCR_COMPLETED" if conf_avg >= 0.75 else "NEEDS_OCR_REVIEW"
             db.commit()
             db.refresh(sheet)
+
+            # Auto-trigger semantic grading on extracted answers
+            try:
+                from app.services.grading_service import grading_service
+                grading_service.evaluate_answer_sheet(db, sheet.id, user_id=user_id)
+            except Exception as eval_err:
+                print(f"[OCRService] Auto-evaluation warning: {eval_err}")
 
             log_audit_event(
                 db=db,
@@ -121,6 +128,13 @@ class OCRService:
         sheet.processing_status = "OCR_APPROVED"
         db.commit()
         db.refresh(sheet)
+
+        # Auto-evaluate on approval
+        try:
+            from app.services.grading_service import grading_service
+            grading_service.evaluate_answer_sheet(db, sheet.id, user_id=user_id)
+        except Exception as eval_err:
+            print(f"[OCRService] Approval evaluation warning: {eval_err}")
 
         log_audit_event(
             db=db,
