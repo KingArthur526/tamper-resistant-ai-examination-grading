@@ -17,6 +17,7 @@ interface OCRViewerProps {
   ) => Promise<void>;
   onSaveEntireSheet?: (entireText: string) => Promise<void>;
   onApprove: () => Promise<void>;
+  onRerunOCR?: () => Promise<void>;
 }
 
 export const OCRViewer: React.FC<OCRViewerProps> = ({
@@ -24,6 +25,7 @@ export const OCRViewer: React.FC<OCRViewerProps> = ({
   onSaveCorrections,
   onSaveEntireSheet,
   onApprove,
+  onRerunOCR,
 }) => {
   const pages: AnswerSheetPage[] =
     reviewData.pages && reviewData.pages.length > 0
@@ -90,6 +92,7 @@ export const OCRViewer: React.FC<OCRViewerProps> = ({
 
   const [isSaving, setIsSaving] = useState(false);
   const [isApproving, setIsApproving] = useState(false);
+  const [isRerunning, setIsRerunning] = useState(false);
   const [saveSuccessMsg, setSaveSuccessMsg] = useState<string | null>(null);
 
   const handleTextChange = (id: string, text: string) => {
@@ -124,15 +127,45 @@ export const OCRViewer: React.FC<OCRViewerProps> = ({
   const handleApproveClick = async () => {
     setIsApproving(true);
     try {
+      // 1. First save any edited answers if present
+      if (editorMode === "entire_sheet" && onSaveEntireSheet) {
+        await onSaveEntireSheet(entireText);
+      } else {
+        const payload = Object.entries(editedAnswers).map(
+          ([student_answer_id, edited_text]) => ({
+            student_answer_id,
+            edited_text,
+          }),
+        );
+        if (payload.length > 0) {
+          await onSaveCorrections(payload);
+        }
+      }
+
+      // 2. Mark approved
       await onApprove();
       setSaveSuccessMsg(
-        "Transcription approved. Answer sheet marked verified.",
+        "Transcription approved. Answer sheet verified and graded.",
       );
       setTimeout(() => setSaveSuccessMsg(null), 4000);
     } catch (e: any) {
       alert("Error approving transcription: " + e.message);
     } finally {
       setIsApproving(false);
+    }
+  };
+
+  const handleRerunOCRClick = async () => {
+    if (!onRerunOCR) return;
+    setIsRerunning(true);
+    try {
+      await onRerunOCR();
+      setSaveSuccessMsg("Deep learning OCR executed successfully.");
+      setTimeout(() => setSaveSuccessMsg(null), 4000);
+    } catch (e: any) {
+      alert("Error re-running OCR: " + e.message);
+    } finally {
+      setIsRerunning(false);
     }
   };
 
@@ -235,9 +268,22 @@ export const OCRViewer: React.FC<OCRViewerProps> = ({
             </div>
           </div>
 
-          <span className="text-[11px] text-yellow-400 bg-yellow-400/10 border border-yellow-400/30 px-2.5 py-1 rounded-md font-bold font-mono">
-            OCR Quality: {(reviewData.ocr_confidence_avg * 100).toFixed(1)}%
-          </span>
+          <div className="flex items-center gap-2">
+            {onRerunOCR && (
+              <button
+                onClick={handleRerunOCRClick}
+                disabled={isRerunning}
+                title="Re-run deep-learning EasyOCR & PyMuPDF on the uploaded scan"
+                className="px-2.5 py-1 bg-zinc-800 hover:bg-zinc-700 text-yellow-400 border border-zinc-700 hover:border-yellow-400/40 text-xs font-semibold rounded-md transition-all flex items-center gap-1.5 shadow-xs disabled:opacity-50"
+              >
+                <RefreshCw className={`w-3 h-3 text-yellow-400 ${isRerunning ? "animate-spin" : ""}`} />
+                <span>{isRerunning ? "Recognizing..." : "Re-run AI OCR"}</span>
+              </button>
+            )}
+            <span className="text-[11px] text-yellow-400 bg-yellow-400/10 border border-yellow-400/30 px-2.5 py-1 rounded-md font-bold font-mono">
+              OCR Quality: {(reviewData.ocr_confidence_avg * 100).toFixed(1)}%
+            </span>
+          </div>
         </div>
 
         {/* Success Alert */}

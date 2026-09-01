@@ -68,6 +68,13 @@ export const OCRReview: React.FC = () => {
     navigate(`/results?sheet=${targetId}`);
   };
 
+  const handleRerunOCR = async () => {
+    if (!sheetId && !reviewData) return;
+    const targetId = sheetId || (reviewData ? reviewData.answer_sheet_id : "");
+    await api.processOCR(targetId);
+    await loadReview(targetId);
+  };
+
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       <div className="bg-[#121316] border border-zinc-800 rounded-xl p-5 shadow-lg">
@@ -105,6 +112,7 @@ export const OCRReview: React.FC = () => {
           onSaveCorrections={handleSaveCorrections}
           onSaveEntireSheet={handleSaveEntireSheet}
           onApprove={handleApprove}
+          onRerunOCR={handleRerunOCR}
         />
       )}
     </div>
